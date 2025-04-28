@@ -90,7 +90,9 @@ def check_api_docs():
 
 def check_sqlite_db():
     try:
-        db_path = "../backend/db/usage.db"
+        db_path = "/opt/render/project/src/backend/db/usage.db"
+        if not os.path.exists(db_path):
+            return False
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='usage_logs'")
