@@ -96,7 +96,7 @@ def check_api_docs():
 
 def check_sqlite_db():
     try:
-        db_path = "/opt/render/project/src/backend/db/usage.db"  # caminho correto no Render
+        db_path = "backend/db/usage.db"
         if not os.path.exists(db_path):
             return False
         conn = sqlite3.connect(db_path)
@@ -107,6 +107,7 @@ def check_sqlite_db():
         return has_table
     except:
         return False
+
 
 # Título e Descrição Principal
 st.title("DIRETRIZES DO PROJETO")
@@ -120,7 +121,7 @@ frontend (Streamlit), seguindo uma arquitetura modular e boas práticas de desen
 """, unsafe_allow_html=True)
 
 # Estrutura do Projeto
-backend_path = Path("/opt/render/project/src/backend")
+backend_path = Path("backend")
 directories = {
     "chains": backend_path / "chains",
     "services": backend_path / "services",
