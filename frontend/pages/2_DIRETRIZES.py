@@ -9,8 +9,8 @@ API_URL = os.getenv("API_URL", "https://deploy-streamlit-senai.onrender.com")
 
 # Configuração da página
 st.set_page_config(
-    page_title="DIRETRIZES",
-    page_icon="\ud83d\udccb",
+    page_title="DIRETRIZES 📋",
+    page_icon=None,
     layout="wide"
 )
 
