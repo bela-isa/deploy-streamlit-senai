@@ -4,7 +4,7 @@ import requests
 import json
 from datetime import datetime
 
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+API_URL = os.getenv("API_URL", "https://deploy-streamlit-senai.onrender.com")
 
 # Configuração da página
 st.set_page_config(
