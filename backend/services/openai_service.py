@@ -23,9 +23,9 @@ class OpenAIService:
             http_client=http_client,
             timeout=60.0  # Timeout aumentado para documentos grandes
         )
-        self.model_name = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
-        self.embedding_model = os.getenv("EMBEDDING_MODEL", "text-embedding-ada-002")
-    
+        self.model_name = os.getenv("CHAT_MODEL", "gpt-3.5-turbo")
+        self.embedding_model = os.getenv("EMBEDDINGS_MODEL", "text-embedding-ada-002")
+
     def get_embedding(self, text: str) -> List[float]:
         """Gera embedding para um texto usando o modelo configurado"""
         try:
@@ -54,4 +54,4 @@ class OpenAIService:
             
             return response.choices[0].message.content, response.usage.total_tokens
         except Exception as e:
-            raise Exception(f"Erro ao gerar resposta: {str(e)}") 
+            raise Exception(f"Erro ao gerar resposta: {str(e)}")
