@@ -2,6 +2,7 @@ import os
 import streamlit as st
 import requests
 import sqlite3
+from pathlib import Path
 
 API_URL = os.getenv("API_URL", "https://deploy-streamlit-senai.onrender.com")
 
@@ -73,7 +74,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Funções de verificação
+def check_directory_exists(path):
+    return os.path.exists(path) and os.path.isdir(path)
+
+def check_file_exists(path):
+    return os.path.exists(path) and os.path.isfile(path)
+
 def check_api_health():
     try:
         response = requests.get(f"{API_URL}/health")
@@ -90,7 +96,7 @@ def check_api_docs():
 
 def check_sqlite_db():
     try:
-        db_path = "/opt/render/project/src/backend/db/usage.db"
+        db_path = "/opt/render/project/src/backend/db/usage.db"  # caminho correto no Render
         if not os.path.exists(db_path):
             return False
         conn = sqlite3.connect(db_path)
@@ -103,7 +109,7 @@ def check_sqlite_db():
         return False
 
 # Título e Descrição Principal
-st.title("📋 DIRETRIZES DO PROJETO")
+st.title("DIRETRIZES DO PROJETO")
 
 st.markdown("""
 <div class="main-description">
@@ -113,26 +119,33 @@ frontend (Streamlit), seguindo uma arquitetura modular e boas práticas de desen
 </div>
 """, unsafe_allow_html=True)
 
-# Contadores
+# Estrutura do Projeto
+backend_path = Path("/opt/render/project/src/backend")
+directories = {
+    "chains": backend_path / "chains",
+    "services": backend_path / "services",
+    "models": backend_path / "models",
+    "db": backend_path / "db"
+}
+
 total_checks = 0
 passed_checks = 0
 
-# Definição dos requisitos
 checks = {
     "Backend (FastAPI)": {
         "description": "API estruturada com RAG + embeddings e modularizada.",
         "items": {
             "Módulo /chains": {
-                "status": True,
-                "description": "Fluxos de chamada IA implementados."
+                "status": check_directory_exists(directories["chains"]),
+                "description": "Fluxos de chamada IA."
             },
             "Módulo /services": {
-                "status": True,
+                "status": check_directory_exists(directories["services"]),
                 "description": "Integração com APIs externas."
             },
             "Módulo /models": {
-                "status": True,
-                "description": "Schemas Pydantic para validação."
+                "status": check_directory_exists(directories["models"]),
+                "description": "Schemas Pydantic."
             },
             "Banco SQLite": {
                 "status": check_sqlite_db(),
@@ -170,11 +183,11 @@ checks = {
             },
             "Variáveis de Ambiente no Render": {
                 "status": True,
-                "description": "Configuração segura via Render."
+                "description": "Configuração segura no ambiente de deploy."
             },
             "Versionamento DB": {
-                "status": True,
-                "description": "Banco de dados versionado no repositório."
+                "status": check_file_exists("/opt/render/project/src/backend/db/usage.db"),
+                "description": "Banco de dados versionado."
             }
         }
     }
@@ -213,7 +226,7 @@ for section, data in checks.items():
     
     col_idx = (col_idx + 1) % 2
 
-# Barra de Progresso e Resumo
+# Barra de Progresso
 st.markdown("---")
 progress = passed_checks / total_checks
 st.progress(progress)
@@ -224,7 +237,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Atualização manual
+# Atualização
 col1, col2, col3 = st.columns([1,1,1])
 with col2:
-    st.button("🔄 Verificar Diretrizes")
+    st.button("Verificar Diretrizes")
