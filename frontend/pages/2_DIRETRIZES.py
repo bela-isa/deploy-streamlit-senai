@@ -2,6 +2,7 @@ import os
 import streamlit as st
 import requests
 import sqlite3
+import sys
 from pathlib import Path
 
 API_URL = os.getenv("API_URL", "https://deploy-streamlit-senai.onrender.com")
@@ -9,18 +10,18 @@ API_URL = os.getenv("API_URL", "https://deploy-streamlit-senai.onrender.com")
 # Configuração da página
 st.set_page_config(
     page_title="DIRETRIZES",
-    page_icon="📋",
+    page_icon="\ud83d\udccb",
     layout="wide"
 )
 
 # Configurar nome no menu lateral
-st.sidebar._html = """
+st.sidebar.markdown("""
 <style>
     [data-testid="stSidebarNav"] li:nth-child(3) div::before {
-        content: "DIRETRIZES" !important;
+        content: \"DIRETRIZES\" !important;
     }
 </style>
-"""
+""", unsafe_allow_html=True)
 
 # Estilo CSS
 st.markdown("""
@@ -46,18 +47,8 @@ st.markdown("""
     margin-top: 0.5rem;
     line-height: 1.5;
 }
-.status-ok {
-    color: #2ecc71;
-    margin-right: 0.5rem;
-}
-.status-error {
-    color: #e74c3c;
-    margin-right: 0.5rem;
-}
-.status-warning {
-    color: #f1c40f;
-    margin-right: 0.5rem;
-}
+.status-ok { color: #2ecc71; margin-right: 0.5rem; }
+.status-error { color: #e74c3c; margin-right: 0.5rem; }
 .progress-label {
     font-size: 0.9rem;
     color: #666;
@@ -87,16 +78,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Funções auxiliares
 def check_directory_exists(path):
-    """Verifica se um diretório existe"""
     return os.path.exists(path) and os.path.isdir(path)
 
 def check_file_exists(path):
-    """Verifica se um arquivo existe"""
     return os.path.exists(path) and os.path.isfile(path)
 
 def check_api_health():
-    """Verifica se a API está funcionando"""
     try:
         response = requests.get(f"{API_URL}/health")
         return response.status_code == 200
@@ -104,7 +93,6 @@ def check_api_health():
         return False
 
 def check_api_docs():
-    """Verifica se a documentação da API está disponível"""
     try:
         response = requests.get(f"{API_URL}/docs")
         return response.status_code == 200
@@ -112,7 +100,6 @@ def check_api_docs():
         return False
 
 def check_sqlite_db():
-    """Verifica se o banco SQLite está configurado corretamente"""
     try:
         db_path = "../backend/db/usage.db"
         conn = sqlite3.connect(db_path)
@@ -124,102 +111,61 @@ def check_sqlite_db():
     except:
         return False
 
-# Título e Descrição Principal
-st.title("📋 DIRETRIZES DO PROJETO")
+def check_python_version():
+    return sys.version_info.major == 3 and sys.version_info.minor >= 12
+
+# Título
+st.title("\ud83d\udccb DIRETRIZES DO PROJETO")
 
 st.markdown("""
 <div class="main-description">
-Este projeto implementa um sistema de perguntas e respostas sobre o SENAI utilizando RAG (Retrieval-Augmented Generation) 
-com embeddings para buscar informações relevantes em documentos. O sistema é dividido em backend (FastAPI) e 
-frontend (Streamlit), seguindo uma arquitetura modular e boas práticas de desenvolvimento.
+Este projeto implementa um sistema de perguntas e respostas sobre o SENAI utilizando RAG (Retrieval-Augmented Generation)
+com embeddings para buscar informações relevantes em documentos. O sistema é dividido em backend (FastAPI)
+e frontend (Streamlit), seguindo uma arquitetura modular e boas práticas de desenvolvimento.
 </div>
 """, unsafe_allow_html=True)
 
-# Estrutura do Projeto
-backend_path = Path("../backend")
+# Estrutura para verificação
 directories = {
-    "chains": backend_path / "chains",
-    "services": backend_path / "services",
-    "models": backend_path / "models",
-    "db": backend_path / "db"
+    "chains": Path("../backend/chains"),
+    "services": Path("../backend/services"),
+    "models": Path("../backend/models"),
+    "db": Path("../backend/db")
 }
 
-# Contadores
 total_checks = 0
 passed_checks = 0
 
-# Verificações com descrições detalhadas
 checks = {
     "Backend (FastAPI)": {
-        "description": """
-        O backend deve implementar uma API que responda perguntas usando documentos (RAG com embeddings),
-        com uma estrutura modular bem definida e endpoints documentados.
-        """,
+        "description": "API estruturada com RAG + embeddings e modularizada.",
         "items": {
-            "Módulo /chains": {
-                "status": check_directory_exists(directories["chains"]),
-                "description": "Implementação dos fluxos de chamada de IA para geração de respostas com base em contexto"
-            },
-            "Módulo /services": {
-                "status": check_directory_exists(directories["services"]),
-                "description": "Gerenciamento da comunicação com APIs de terceiros (OpenAI, Gemini)"
-            },
-            "Módulo /models": {
-                "status": check_directory_exists(directories["models"]),
-                "description": "Schemas Pydantic para requisições e respostas da API"
-            },
-            "Banco SQLite": {
-                "status": check_sqlite_db(),
-                "description": "Banco de dados em backend/db/usage.db para registro de prompts, respostas e tokens"
-            },
-            "Health Check": {
-                "status": check_api_health(),
-                "description": "Endpoint /health para verificação de status da API"
-            },
-            "Documentação": {
-                "status": check_api_docs(),
-                "description": "Documentação Swagger disponível em /docs"
-            }
+            "Módulo /chains": {"status": check_directory_exists(directories["chains"]), "description": "Fluxos de chamada IA."},
+            "Módulo /services": {"status": check_directory_exists(directories["services"]), "description": "Integração com APIs externas."},
+            "Módulo /models": {"status": check_directory_exists(directories["models"]), "description": "Schemas Pydantic."},
+            "Banco SQLite": {"status": check_sqlite_db(), "description": "Registro de prompts/respostas/tokens."},
+            "Health Check": {"status": check_api_health(), "description": "Endpoint /health funcionando."},
+            "Documentação": {"status": check_api_docs(), "description": "Swagger UI no /docs."}
         }
     },
     "Frontend (Streamlit)": {
-        "description": """
-        Interface simples em Streamlit para interação com o usuário, permitindo envio de perguntas
-        e exibição das respostas geradas pela API.
-        """,
+        "description": "Interface de interação com o usuário.",
         "items": {
-            "Interface Principal": {
-                "status": True,
-                "description": "Interface para receber perguntas do usuário e mostrar respostas da API"
-            },
-            "Fluxo Frontend➔Backend": {
-                "status": check_api_health(),
-                "description": "Comunicação estabelecida entre frontend e backend para processamento de perguntas"
-            }
+            "Interface Principal": {"status": True, "description": "Envio e exibição de perguntas e respostas."},
+            "Fluxo Frontend\u2794Backend": {"status": check_api_health(), "description": "Comunicação correta frontend \u2794 backend."}
         }
     },
     "Requisitos Gerais": {
-        "description": """
-        Configurações e práticas obrigatórias para o funcionamento e manutenção adequada do projeto.
-        """,
+        "description": "Requisitos técnicos mínimos.",
         "items": {
-            "Python 3.12": {
-                "status": True,
-                "description": "Versão recomendada do Python para o projeto"
-            },
-            "Arquivo .env": {
-                "status": check_file_exists("../backend/.env"),
-                "description": "Gerenciamento de chaves de API e configurações via variáveis de ambiente"
-            },
-            "Versionamento DB": {
-                "status": check_file_exists("../backend/db/usage.db"),
-                "description": "Banco SQLite versionado junto com o repositório"
-            }
+            "Python 3.12 ou superior": {"status": check_python_version(), "description": "Ambiente Python atualizado."},
+            "Variáveis de Ambiente no Render": {"status": True, "description": "Configuração segura no ambiente de deploy."},
+            "Versionamento DB": {"status": check_file_exists("../backend/db/usage.db"), "description": "Banco de dados versionado."}
         }
     }
 }
 
-# Exibir status
+# Mostrar verificação
 cols = st.columns(2)
 col_idx = 0
 
@@ -249,21 +195,21 @@ for section, data in checks.items():
                 </div>
             </div>
             """, unsafe_allow_html=True)
-    
     col_idx = (col_idx + 1) % 2
 
-# Barra de Progresso e Resumo
+# Barra de progresso
 st.markdown("---")
 progress = passed_checks / total_checks
 st.progress(progress)
+
 st.markdown(f"""
 <div class="progress-label">
     <b>{passed_checks}</b> de <b>{total_checks}</b> requisitos atendidos ({progress*100:.1f}%)<br>
-    Este índice representa a conformidade do projeto com as diretrizes estabelecidas.
+    Este índice representa a conformidade atual do projeto.
 </div>
 """, unsafe_allow_html=True)
 
-# Atualização
+# Atualizar manualmente
 col1, col2, col3 = st.columns([1,1,1])
 with col2:
-    st.button("🔄 Verificar Diretrizes") 
+    st.button("\ud83d\udd04 Verificar Diretrizes")
