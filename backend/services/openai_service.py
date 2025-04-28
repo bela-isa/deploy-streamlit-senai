@@ -24,7 +24,7 @@ class OpenAIService:
             timeout=60.0  # Timeout aumentado para documentos grandes
         )
         self.model_name = os.getenv("CHAT_MODEL", "gpt-3.5-turbo")
-        self.embedding_model = os.getenv("EMBEDDINGS_MODEL", "text-embedding-ada-002")
+        self.embedding_model = os.getenv("EMBEDDINGS_MODEL", "text-embedding-3-small")
 
     def get_embedding(self, text: str) -> List[float]:
         """Gera embedding para um texto usando o modelo configurado"""
