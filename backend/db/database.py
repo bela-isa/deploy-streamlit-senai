@@ -41,11 +41,11 @@ def log_usage(db: Session, prompt: str, response: str, tokens: int):
     """Registra o uso da API no banco de dados"""
     try:
         usage_log = Usage(
-            prompt=prompt,
-            response=response,
-            tokens_used=tokens,
-            timestamp=datetime.utcnow()
-        )
+    prompt=prompt,
+    response=response,
+    tokens_used=tokens,
+    timestamp=datetime.utcnow()  # IMPORTANTE: precisa passar o timestamp também
+)
         db.add(usage_log)
         db.commit()
         return usage_log
