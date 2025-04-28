@@ -199,10 +199,7 @@ if question:
     with st.status("Processando sua pergunta...", expanded=True) as status:
         try:
             # Fazer requisição para o backend
-            response = requests.post(
-                f"{API_URL}/question",
-                json={"question": question}
-            )
+            response = requests.post(f"{API_URL}/ask", json={"question": question})
             
             if response.status_code == 200:
                 data = response.json()
