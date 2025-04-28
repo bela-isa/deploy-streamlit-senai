@@ -3,7 +3,8 @@ from pydantic import BaseModel
 from typing import List
 from datetime import datetime
 import os
-from services.document_service import DocumentService
+from backend.services.document_service import DocumentService
+
 
 router = APIRouter()
 document_service = DocumentService()
