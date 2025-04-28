@@ -7,6 +7,7 @@ from chains.qa_chain import QAChain
 from routers.document_router import router as document_router
 from dotenv import load_dotenv
 import os
+import json
 
 load_dotenv()
 
@@ -38,7 +39,9 @@ def answer_question(
         timestamp=datetime.utcnow(),
         prompt=question_request.question,
         response=answer,
-        tokens_used=tokens_used
+        tokens_used=tokens_used,
+        model_name=os.getenv("MODEL_NAME", "gpt-3.5-turbo"),
+        context_used=json.dumps(context_used)
     )
     db.add(usage_log)
     db.commit()

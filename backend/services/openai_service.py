@@ -1,12 +1,15 @@
 from openai import OpenAI
 import os
+from dotenv import load_dotenv
 from typing import List, Tuple
 import httpx
-from ..config import OPENAI_API_KEY, MODEL_NAME, EMBEDDING_MODEL
+
+load_dotenv()
 
 class OpenAIService:
     def __init__(self):
-        if not OPENAI_API_KEY:
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
             raise ValueError("OPENAI_API_KEY não encontrada nas variáveis de ambiente")
         
         # Configuração do cliente HTTP com proxy se necessário
@@ -16,12 +19,12 @@ class OpenAIService:
         
         # Inicialização do cliente com configurações personalizadas
         self.client = OpenAI(
-            api_key=OPENAI_API_KEY,
+            api_key=api_key,
             http_client=http_client,
             timeout=60.0  # Timeout aumentado para documentos grandes
         )
-        self.model_name = MODEL_NAME
-        self.embedding_model = EMBEDDING_MODEL
+        self.model_name = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
+        self.embedding_model = os.getenv("EMBEDDING_MODEL", "text-embedding-ada-002")
     
     def get_embedding(self, text: str) -> List[float]:
         """Gera embedding para um texto usando o modelo configurado"""

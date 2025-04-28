@@ -1,11 +1,18 @@
 import os
 from typing import List, Dict
 import json
-from ..config import DOCUMENTS_DIR
 
 class DocumentService:
-    def __init__(self):
-        self.documents_dir = DOCUMENTS_DIR
+    def __init__(self, documents_dir: str = None):
+        # Definir o caminho absoluto para o diretório de documentos
+        if documents_dir is None:
+            # Obter o diretório do arquivo atual
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # Voltar dois níveis e entrar na pasta documents
+            self.documents_dir = os.path.abspath(os.path.join(current_dir, '..', '..', 'documents'))
+        else:
+            self.documents_dir = os.path.abspath(documents_dir)
+            
         print(f"Diretório de documentos: {self.documents_dir}")  # Debug
         self.documents: Dict[str, str] = {}
         self._load_documents()

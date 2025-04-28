@@ -2,11 +2,14 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 import json
 from sqlalchemy.sql import func
-from ..config import DATABASE_URL
 
-# Criar engine do SQLAlchemy
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/usage.db")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

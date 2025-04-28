@@ -1,0 +1,1 @@
+# Este arquivo transforma a pasta db em um pacote Python 
