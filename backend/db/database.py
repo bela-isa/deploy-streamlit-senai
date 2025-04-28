@@ -1,63 +1,50 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from datetime import datetime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, func
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import Session
 import os
-from dotenv import load_dotenv
 import json
-from sqlalchemy.sql import func
+from datetime import datetime
+from backend.models.schemas import UsageLog
+from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/usage.db")
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Garante que a pasta backend/db/ exista antes de criar o banco
+os.makedirs("backend/db", exist_ok=True)
 
+SQLALCHEMY_DATABASE_URL = "sqlite:///backend/db/usage.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 class Usage(Base):
     __tablename__ = "usage_logs"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-    prompt = Column(Text)  # Usando Text para prompts longos
-    response = Column(Text)  # Usando Text para respostas longas
-    tokens_used = Column(Integer)
-    model_name = Column(String)  # Nome do modelo usado
-    context_used = Column(Text)  # Documentos usados como contexto
-    
-    def to_dict(self):
-        """Converte o registro para dicionário"""
-        return {
-            "id": self.id,
-            "timestamp": self.timestamp.isoformat(),
-            "prompt": self.prompt,
-            "response": self.response,
-            "tokens_used": self.tokens_used,
-            "model_name": self.model_name,
-            "context_used": json.loads(self.context_used) if self.context_used else []
-        }
 
-# Criar o banco de dados e as tabelas
+    id = Column(Integer, primary_key=True, index=True)
+    prompt = Column(String)
+    response = Column(String)
+    tokens_used = Column(Integer)
+    timestamp = Column(DateTime)
+
+# Cria as tabelas no banco
 Base.metadata.create_all(bind=engine)
 
 def get_db():
-    """Fornece uma sessão do banco de dados"""
+    """Abre e fecha a sessão com o banco de dados"""
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-def log_usage(db, prompt: str, response: str, tokens: int, model: str, context: list):
+def log_usage(db: Session, prompt: str, response: str, tokens: int):
     """Registra o uso da API no banco de dados"""
     try:
         usage_log = Usage(
             prompt=prompt,
             response=response,
             tokens_used=tokens,
-            model_name=model,
-            context_used=json.dumps(context)
+            timestamp=datetime.utcnow()
         )
         db.add(usage_log)
         db.commit()
@@ -66,13 +53,11 @@ def log_usage(db, prompt: str, response: str, tokens: int, model: str, context: 
         db.rollback()
         raise Exception(f"Erro ao registrar uso: {str(e)}")
 
-def get_usage_stats(db):
+def get_usage_stats(db: Session):
     """Retorna estatísticas de uso"""
     try:
         total_requests = db.query(Usage).count()
-        total_tokens = db.query(Usage).with_entities(
-            func.sum(Usage.tokens_used)
-        ).scalar() or 0
+        total_tokens = db.query(func.sum(Usage.tokens_used)).scalar() or 0
         
         return {
             "total_requests": total_requests,
@@ -80,4 +65,4 @@ def get_usage_stats(db):
             "average_tokens": total_tokens / total_requests if total_requests > 0 else 0
         }
     except Exception as e:
-        raise Exception(f"Erro ao obter estatísticas: {str(e)}") 
+        raise Exception(f"Erro ao obter estatísticas: {str(e)}")
