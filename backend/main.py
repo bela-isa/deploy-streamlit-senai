@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from datetime import datetime
-from models.schemas import QuestionRequest, QuestionResponse, UsageLog
+from backend.models.schemas import QuestionRequest, QuestionResponse, UsageLog
 from db.database import get_db, Usage
 from chains.qa_chain import QAChain
 from routers.document_router import router as document_router
