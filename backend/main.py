@@ -2,12 +2,13 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from datetime import datetime
 from backend.models.schemas import QuestionRequest, QuestionResponse, UsageLog
-from db.database import get_db, Usage
-from chains.qa_chain import QAChain
-from routers.document_router import router as document_router
+from backend.db.database import get_db, Usage
+from backend.chains.qa_chain import QAChain
+from backend.routers.document_router import router as document_router
 from dotenv import load_dotenv
 import os
 import json
+
 
 load_dotenv()
 
