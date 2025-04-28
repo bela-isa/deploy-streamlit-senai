@@ -112,7 +112,7 @@ if 'messages' not in st.session_state or not st.session_state.messages:
                     try:
                         # Fazer requisição para o backend
                         response = requests.post(
-                            f"{API_URL}/question",
+                            f"{API_URL}/ask",
                             json={"question": sugestao}
                         )
                         
