@@ -1,5 +1,5 @@
 from backend.services.openai_service import OpenAIService
-from services.document_service import DocumentService
+from backend.services.document_service import DocumentService
 from typing import List, Tuple
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
