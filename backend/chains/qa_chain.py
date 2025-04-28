@@ -1,4 +1,4 @@
-from services.openai_service import OpenAIService
+from backend.services.openai_service import OpenAIService
 from services.document_service import DocumentService
 from typing import List, Tuple
 import numpy as np
