@@ -25,7 +25,7 @@ qa_chain = QAChain()
 def health_check():
     return {"status": "ok"}
 
-@app.post("/ask", response_model=QuestionResponse, tags=["QA"])
+@app.post("/question", response_model=QuestionResponse, tags=["QA"])
 def answer_question(
     question_request: QuestionRequest,
     db: Session = Depends(get_db)
