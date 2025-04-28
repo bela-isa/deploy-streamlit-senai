@@ -35,10 +35,10 @@ def answer_question(
 
     # Registrar uso no banco de dados
     usage_log = Usage(
-        timestamp=datetime.utcnow(),
         prompt=question_request.question,
         response=answer,
-        tokens_used=tokens_used
+        tokens_used=tokens_used,
+        timestamp=datetime.utcnow()
     )
     db.add(usage_log)
     db.commit()
